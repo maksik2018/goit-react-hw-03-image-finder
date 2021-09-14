@@ -15,9 +15,8 @@ export default class App extends Component {
     searchValue: "",
     gallery: [],
     page: 1,
-    isModalOpen: false,
     reqStatus: "idle",
-    largeImgUrl: "",
+    largeImageUrl: null,
   };
 
   async componentDidUpdate(_, prevState) {
@@ -26,7 +25,7 @@ export default class App extends Component {
       if (prevState.searchValue !== this.state.searchValue) {
         this.setState({
           reqStatus: "pending",
-          largeImgUrl: "",
+          largeImageUrl: null,
         });
         const images = await fetchImages(searchValue, page);
 
@@ -74,46 +73,30 @@ export default class App extends Component {
     });
   };
 
-  handleLargeImgUrl = (e) => {
-    this.setState({
-      isModalOpen: true,
-      largeImgUrl: e.target.dataset.large,
-    });
+  handleLargeImgUrl = (largeImageUrl) => {
+    this.setState({ largeImageUrl });
   };
 
   toggleModal = () => {
     this.setState({
-      isModalOpen: false,
+      largeImageUrl: null,
     });
   };
 
   render() {
-    const { gallery, reqStatus, isModalOpen, largeImgUrl } = this.state;
+    const { gallery, reqStatus, largeImageUrl } = this.state;
     const galleryLength = gallery.length > 1;
 
-    // if (reqStatus === "pending") {
-    //   return (
-    //     <Loader
-    //       type="Puff"
-    //       color="#00BFFF"
-    //       height={100}
-    //       width={100}
-    //       timeout={1000}
-    //     />
-    //   );
-    // }
     return (
       <div className="Container">
         <SearchBar onSubmit={this.handleSubmit} />
         <ImageGallery onClick={this.handleLargeImgUrl} gallery={gallery} />
         {reqStatus === "pending" && <Loader />}
-        {galleryLength && (
-          <Button onClick={this.handleLoadMore}>Load more</Button>
-        )}
-        {isModalOpen && (
-          <Modal src={largeImgUrl} onClose={this.toggleModal}>
-            <div style={{ width: 900 }}>
-              <img src={largeImgUrl} alt="" />
+        {galleryLength && <Button onClick={this.handleLoadMore} />}
+        {largeImageUrl && (
+          <Modal src={largeImageUrl} onClose={this.toggleModal}>
+            <div style={{ width: 950 }}>
+              <img src={largeImageUrl} alt="" />
             </div>
           </Modal>
         )}
